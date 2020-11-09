@@ -6,9 +6,19 @@ namespace ShoppingCart.UnitTests
         public int Price;
         public string Sku;
 
+        public ProductData(string name, int price, string sku)
+        {
+            Sku = sku;
+            Price = price;
+            Name = name;
+        }
+
+        public ProductData()
+        { }
+
         public override bool Equals(object obj)
         {
-            ProductData pd = (ProductData)obj;
+            ProductData pd = (ProductData) obj;
             return Name.Equals(pd.Name) && Sku.Equals(pd.Sku) && Price == pd.Price;
         }
 

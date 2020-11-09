@@ -7,7 +7,7 @@ namespace ShoppingCart.UnitTests
         [Fact]
         public void TestOrderPrice()
         {
-            Order o = new Order("Bob");
+            Order o = new OrderImp("Bob");
             Product toothpaste = new ProductImpl("Toothpaste1", "Toothpaste", 129);
             o.AddItem(toothpaste, 1);
             Assert.Equal(129, o.Total);

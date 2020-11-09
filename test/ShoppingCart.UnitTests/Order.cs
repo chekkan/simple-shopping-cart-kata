@@ -1,34 +1,37 @@
 using System.Collections;
+using System.Linq;
 
 namespace ShoppingCart.UnitTests
 {
-    public class Order
+    public interface Order
     {
-        private ArrayList items = new ArrayList();
+        string CustomerId { get; }
+        void AddItem(Product p, int quantity);
+        int Total { get; }
+    }
 
-        public Order(string name)
-        { }
+    public class OrderImp : Order
+    {
+        private readonly ArrayList items = new ArrayList();
 
-        public int Total
+        public OrderImp(string cusId)
         {
-            get
-            {
-                int total = 0;
-                foreach (Item item in items)
-                {
-                    Product p = item.Product;
-                    int qty = item.Quantity;
-                    total += p.Price * qty;
-                }
-                return total;
-            }
+            CustomerId = cusId;
         }
 
-        public void AddItem(Product p, int qty)
+        public string CustomerId { get; }
+
+        public void AddItem(Product p, int quantity)
         {
-            Item item = new Item(p, qty);
+            var item = new Item(p, quantity);
             items.Add(item);
         }
+
+        public int Total => (
+            from Item item in items
+            let p = item.Product
+            let qty = item.Quantity
+            select p.Price * qty).Sum();
     }
 
     public class Item

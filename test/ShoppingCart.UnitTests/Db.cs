@@ -1,7 +1,7 @@
 using System;
+using System.Collections;
 using System.Data;
 using System.Data.SqlClient;
-using System.Threading.Tasks;
 
 namespace ShoppingCart.UnitTests
 {
@@ -29,6 +29,24 @@ namespace ShoppingCart.UnitTests
             return command;
         }
 
+        public static void Store(ItemData id)
+        {
+            using var conn = new SqlConnection(ConnectionString);
+            SqlCommand command = BuildItemInsertionStatement(id, conn);
+            conn.Open();
+            command.ExecuteNonQuery();
+        }
+
+        private static SqlCommand BuildItemInsertionStatement(ItemData id, SqlConnection connection)
+        {
+            const string sql = "INSERT INTO Items(orderId,quantity,sku) VALUES (@orderId, @quantity, @sku)";
+            var command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@orderId", id.OrderId);
+            command.Parameters.AddWithValue("@quantity", id.Qty);
+            command.Parameters.AddWithValue("@sku", id.Sku);
+            return command;
+        }
+
         public static ProductData GetProductData(string sku)
         {
             using var conn = new SqlConnection(ConnectionString);
@@ -52,11 +70,60 @@ namespace ShoppingCart.UnitTests
         {
             ProductData pd = new ProductData
             {
-                Sku = reader["sku"].ToString(), 
-                Name = reader["name"].ToString(), 
+                Sku = reader["sku"].ToString(),
+                Name = reader["name"].ToString(),
                 Price = Convert.ToInt32(reader["price"])
             };
             return pd;
+        }
+
+        public static ItemData[] GetItemsForOrder(int orderId)
+        {
+            using var conn = new SqlConnection(ConnectionString);
+            SqlCommand command = BuildItemsForOrderQueryCommand(orderId, conn);
+            conn.Open();
+            IDataReader reader = command.ExecuteReader();
+            ItemData[] items = ExtractItemDataFromResultSet(reader);
+            reader.Close();
+            return items;
+        }
+
+        private static SqlCommand BuildItemsForOrderQueryCommand(int orderId, SqlConnection conn)
+        {
+            const string sql = "SELECT * FROM Items WHERE orderId = @orderId";
+            var command = new SqlCommand(sql, conn);
+            command.Parameters.AddWithValue("@orderId", orderId);
+            return command;
+        }
+
+        private static ItemData[] ExtractItemDataFromResultSet(IDataReader reader)
+        {
+            var items = new ArrayList();
+            while (reader.Read())
+            {
+                var orderId = Convert.ToInt32(reader["orderId"]);
+                var quantity = Convert.ToInt32(reader["quantity"]);
+                var sku = reader["sku"].ToString();
+                var id = new ItemData(orderId, quantity, sku);
+                items.Add(id);
+            }
+
+            return (ItemData[]) items.ToArray(typeof (ItemData));
+        }
+
+        public static OrderData GetOrderData(int orderId)
+        {
+            const string sql = "SELECT cusId FROM orders WHERE orderId = @orderId";
+            using var conn = new SqlConnection(ConnectionString);
+            var command = new SqlCommand(sql, conn);
+            command.Parameters.AddWithValue("@orderId", orderId);
+            conn.Open();
+            IDataReader reader = command.ExecuteReader();
+            OrderData od = null;
+            if (reader.Read())
+                od = new OrderData(orderId, reader["cusId"].ToString());
+            reader.Close();
+            return od;
         }
 
         public static void DeleteProductData(string sku)
@@ -79,6 +146,33 @@ namespace ShoppingCart.UnitTests
             IDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader;
+        }
+
+        public static OrderData NewOrder(string customerId)
+        {
+            const string sql = "INSERT INTO Orders(cusId) VALUES(@cusId);" +
+                               "SELECT scope_identity()";
+            using var conn = new SqlConnection(ConnectionString);
+            var command = new SqlCommand(sql, conn);
+            command.Parameters.AddWithValue("@cusId", customerId);
+            conn.Open();
+            var newOrderId = Convert.ToInt32(command.ExecuteScalar());
+            return new OrderData(newOrderId, customerId);
+        }
+
+        public static void Clear()
+        {
+            using var conn = new SqlConnection(ConnectionString);
+            conn.Open();
+            ExecuteSql("DELETE FROM Items", conn);
+            ExecuteSql("DELETE FROM Orders", conn);
+            ExecuteSql("DELETE FROM Products", conn);
+        }
+
+        private static void ExecuteSql(string sql, SqlConnection conn)
+        {
+            SqlCommand command = new SqlCommand(sql, conn);
+            command.ExecuteNonQuery();
         }
     }
 }
