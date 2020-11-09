@@ -43,24 +43,26 @@ namespace ShoppingCart.UnitTests
         }
     }
 
-    public class Product
+    public interface Product
     {
-        public readonly int Price;
+        int Price { get; }
+        string Name { get; }
+        string Sku { get; }
+    }
 
-        public Product(string name, int price)
+    public class ProductImpl : Product
+    {
+        public int Price { get; }
+
+        public string Name { get; }
+
+        public string Sku { get; }
+
+        public ProductImpl(string sku, string name, int price)
         {
+            Sku = sku;
+            Name = name;
             Price = price;
         }
     }
-
-    // public class AddItemTransaction : Transaction
-    // {
-    //     public void AddItem(int orderId, string sku, int qty)
-    //     {
-    //         string sql = "insert into items values(" +
-    //             orderId + "," + sku + "," + qty + ")";
-    //         SqlCommand command = new SqlCommand(sql, connection);
-    //         command.ExecuteNonQuery();
-    //     }
-    // }
 }

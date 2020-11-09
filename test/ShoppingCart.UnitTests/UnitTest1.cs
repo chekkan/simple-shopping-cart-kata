@@ -1,4 +1,3 @@
-using System;
 using Xunit;
 
 namespace ShoppingCart.UnitTests
@@ -9,10 +8,10 @@ namespace ShoppingCart.UnitTests
         public void TestOrderPrice()
         {
             Order o = new Order("Bob");
-            Product toothpaste = new Product("Toothpaste", 129);
+            Product toothpaste = new ProductImpl("Toothpaste1", "Toothpaste", 129);
             o.AddItem(toothpaste, 1);
             Assert.Equal(129, o.Total);
-            Product mouthwash = new Product("Mouthwash", 342);
+            Product mouthwash = new ProductImpl("Mouthwash1", "Mouthwash", 342);
             o.AddItem(mouthwash, 2);
             Assert.Equal(813, o.Total);
         }

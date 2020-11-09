@@ -28,9 +28,9 @@ namespace ShoppingCart.UnitTests
         {
             string sql = "INSERT INTO Products VALUES (@sku, @name, @price)";
             SqlCommand command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@sku", pd.sku);
-            command.Parameters.AddWithValue("@name", pd.name);
-            command.Parameters.AddWithValue("@price", pd.price);
+            command.Parameters.AddWithValue("@sku", pd.Sku);
+            command.Parameters.AddWithValue("@name", pd.Name);
+            command.Parameters.AddWithValue("@price", pd.Price);
             return command;
         }
 
@@ -54,9 +54,9 @@ namespace ShoppingCart.UnitTests
         private static ProductData ExtractProductDataFromReader(IDataReader reader)
         {
             ProductData pd = new ProductData();
-            pd.sku = reader["sku"].ToString();
-            pd.name = reader["name"].ToString();
-            pd.price = Convert.ToInt32(reader["price"]);
+            pd.Sku = reader["sku"].ToString();
+            pd.Name = reader["name"].ToString();
+            pd.Price = Convert.ToInt32(reader["price"]);
             return pd;
         }
 

@@ -19,9 +19,9 @@ namespace ShoppingCart.UnitTests
         public void StoreProduct()
         {
             ProductData storedProduct = new ProductData();
-            storedProduct.name = "MyProduct";
-            storedProduct.price = 1234;
-            storedProduct.sku = "999";
+            storedProduct.Name = "MyProduct";
+            storedProduct.Price = 1234;
+            storedProduct.Sku = "999";
             Db.Store(storedProduct);
             ProductData retrievedProduct = Db.GetProductData("999");
             Db.DeleteProductData("999");

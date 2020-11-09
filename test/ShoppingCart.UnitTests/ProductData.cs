@@ -2,15 +2,15 @@ namespace ShoppingCart.UnitTests
 {
     public class ProductData
     {
-        public string name;
-        public int price;
-        public string sku;
+        public string Name;
+        public int Price;
+        public string Sku;
 
         public ProductData(string name, int price, string sku)
         {
-            this.name = name;
-            this.price = price;
-            this.sku = sku;
+            this.Name = name;
+            this.Price = price;
+            this.Sku = sku;
         }
 
         public ProductData() { }
@@ -18,12 +18,12 @@ namespace ShoppingCart.UnitTests
         public override bool Equals(object obj)
         {
             ProductData pd = (ProductData)obj;
-            return name.Equals(pd.name) && sku.Equals(pd.sku) && price == pd.price;
+            return Name.Equals(pd.Name) && Sku.Equals(pd.Sku) && Price == pd.Price;
         }
 
         public override int GetHashCode()
         {
-            return name.GetHashCode() ^ sku.GetHashCode() ^ price.GetHashCode();
+            return Name.GetHashCode() ^ Sku.GetHashCode() ^ Price.GetHashCode();
         }
     }
 }
