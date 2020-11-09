@@ -1,33 +1,28 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace ShoppingCart.UnitTests
 {
-    public class Db
+    public static class Db
     {
-        private static SqlConnection connection;
-
-        public static void Init()
-        {
-            string connectionString =
-                "Server=localhost;" +
-                "Database=master;" +
-                "user id=sa;password=strong(!)Password;";
-            connection = new SqlConnection(connectionString);
-            connection.Open();
-        }
+        private const string ConnectionString = "Server=localhost,9433;" +
+                                                "Database=master;" +
+                                                "user id=sa;password=strong(!)Password;";
 
         public static void Store(ProductData pd)
         {
-            SqlCommand command = BuildInsertionCommand(pd);
+            using var conn = new SqlConnection(ConnectionString);
+            SqlCommand command = BuildInsertionCommand(pd, conn);
+            conn.Open();
             command.ExecuteNonQuery();
         }
 
-        private static SqlCommand BuildInsertionCommand(ProductData pd)
+        private static SqlCommand BuildInsertionCommand(ProductData pd, SqlConnection connection)
         {
-            string sql = "INSERT INTO Products VALUES (@sku, @name, @price)";
-            SqlCommand command = new SqlCommand(sql, connection);
+            const string sql = "INSERT INTO Products VALUES (@sku, @name, @price)";
+            var command = new SqlCommand(sql, connection);
             command.Parameters.AddWithValue("@sku", pd.Sku);
             command.Parameters.AddWithValue("@name", pd.Name);
             command.Parameters.AddWithValue("@price", pd.Price);
@@ -36,36 +31,42 @@ namespace ShoppingCart.UnitTests
 
         public static ProductData GetProductData(string sku)
         {
-            SqlCommand command = BuildProductQueryCommand(sku);
+            using var conn = new SqlConnection(ConnectionString);
+            SqlCommand command = BuildProductQueryCommand(sku, conn);
+            conn.Open();
             IDataReader reader = ExecuteQueryStatement(command);
             ProductData pd = ExtractProductDataFromReader(reader);
             reader.Close();
             return pd;
         }
 
-        private static SqlCommand BuildProductQueryCommand(string sku)
+        private static SqlCommand BuildProductQueryCommand(string sku, SqlConnection connection)
         {
-            string sql = "SELECT * FROM Products WHERE sku = @sku";
-            SqlCommand command = new SqlCommand(sql, connection);
+            const string sql = "SELECT * FROM Products WHERE sku = @sku";
+            var command = new SqlCommand(sql, connection);
             command.Parameters.AddWithValue("@sku", sku);
             return command;
         }
 
         private static ProductData ExtractProductDataFromReader(IDataReader reader)
         {
-            ProductData pd = new ProductData();
-            pd.Sku = reader["sku"].ToString();
-            pd.Name = reader["name"].ToString();
-            pd.Price = Convert.ToInt32(reader["price"]);
+            ProductData pd = new ProductData
+            {
+                Sku = reader["sku"].ToString(), 
+                Name = reader["name"].ToString(), 
+                Price = Convert.ToInt32(reader["price"])
+            };
             return pd;
         }
 
         public static void DeleteProductData(string sku)
         {
-            BuildProductDeleteStatement(sku).ExecuteNonQuery();
+            using var conn = new SqlConnection(ConnectionString);
+            conn.Open();
+            BuildProductDeleteStatement(sku, conn).ExecuteNonQuery();
         }
 
-        private static SqlCommand BuildProductDeleteStatement(string sku)
+        private static SqlCommand BuildProductDeleteStatement(string sku, SqlConnection connection)
         {
             string sql = "DELETE from Products WHERE sku = @sku";
             SqlCommand command = new SqlCommand(sql, connection);
@@ -78,11 +79,6 @@ namespace ShoppingCart.UnitTests
             IDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader;
-        }
-
-        public static void Close()
-        {
-            connection.Close();
         }
     }
 }

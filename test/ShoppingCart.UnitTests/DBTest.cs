@@ -1,27 +1,13 @@
-using System;
 using Xunit;
 
 namespace ShoppingCart.UnitTests
 {
-    public class DBTest : IDisposable
+    public class DbTest
     {
-        public DBTest()
-        {
-            Db.Init();
-        }
-
-        public void Dispose()
-        {
-            Db.Close();
-        }
-
         [Fact]
         public void StoreProduct()
         {
-            ProductData storedProduct = new ProductData();
-            storedProduct.Name = "MyProduct";
-            storedProduct.Price = 1234;
-            storedProduct.Sku = "999";
+            ProductData storedProduct = new ProductData { Name = "MyProduct", Price = 1234, Sku = "999" };
             Db.Store(storedProduct);
             ProductData retrievedProduct = Db.GetProductData("999");
             Db.DeleteProductData("999");
