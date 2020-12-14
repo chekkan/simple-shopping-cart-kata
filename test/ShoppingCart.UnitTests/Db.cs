@@ -113,7 +113,7 @@ namespace ShoppingCart.UnitTests
 
         public static OrderData GetOrderData(int orderId)
         {
-            const string sql = "SELECT cusId FROM orders WHERE orderId = @orderId";
+            const string sql = "SELECT cusId FROM Orders WHERE orderId = @orderId";
             using var conn = new SqlConnection(ConnectionString);
             var command = new SqlCommand(sql, conn);
             command.Parameters.AddWithValue("@orderId", orderId);

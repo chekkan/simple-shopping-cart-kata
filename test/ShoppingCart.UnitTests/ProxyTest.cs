@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -110,9 +111,6 @@ namespace ShoppingCart.UnitTests
         public readonly int Qty;
         public readonly string Sku;
 
-        public ItemData()
-        { }
-
         public ItemData(int orderId, int qty, string sku)
         {
             OrderId = orderId;
@@ -128,6 +126,11 @@ namespace ShoppingCart.UnitTests
             }
 
             return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(OrderId, Qty, Sku);
         }
     }
 }
